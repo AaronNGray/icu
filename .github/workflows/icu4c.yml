@@ -6,15 +6,15 @@
 name: GHA ICU4C
 
 on:
-  push:
-    branches:
-      - main
-      - 'maint/maint*'
-      - release-icu4c-ubuntu.yml
-    paths:
-      - 'icu4c/**'
-      - 'testdata/**'
-      - '.github/workflows/**'
+#  push:
+#    branches:
+#      - main
+#      - 'maint/maint*'
+#      - release-icu4c-ubuntu.yml
+#    paths:
+#      - 'icu4c/**'
+#      - 'testdata/**'
+#      - '.github/workflows/**'
   pull_request:
     branches: '**'
     paths:
