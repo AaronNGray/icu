@@ -1,3 +1,5 @@
+name: Choose Machine
+
 on:
   push:
     branches:
