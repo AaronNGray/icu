@@ -19,13 +19,13 @@ on:
   workflow_dispatch:
     inputs:
       machine:
-        description: 'Machine to run the build on.'
         type: choice
+        description: Choose Machine
         options: 
-          - "ubuntu-24.04-arm"
-          - "self-hosted, ubuntu-22.04, ARM64"
-        default: "ubuntu-24.04-arm"
-        required: true       
+        - ubuntu-24.04-arm
+        - self-hosted, ubuntu-22.04, ARM64
+      environment:
+        type: environment
       runTests:
         description: 'Run the tests.'
         type: boolean
@@ -39,7 +39,7 @@ env:
 
 jobs:
   build:
-    runs-on: '${{ inputs.machine }}'  # Updated in BRS
+    runs-on: "${{ github.event.inputs.machine }}"
     environment: release-env
 
     permissions:
