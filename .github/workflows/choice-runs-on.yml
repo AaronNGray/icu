@@ -1,9 +1,10 @@
-name: Choose Machine
+name: Choose Machine 4
 
 on:
   push:
     branches:
       - main
+      - release-icu4c-ubuntu.yml
   workflow_dispatch:
     inputs:
       machine:
