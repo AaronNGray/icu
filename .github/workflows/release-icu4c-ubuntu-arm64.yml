@@ -23,7 +23,7 @@ on:
         type: choice
         options: 
           - 'ubuntu-24.04-arm'
-          - '[self-hosted, ubuntu-22.04, ARM64]'
+          - 'self-hosted, ubuntu-22.04, ARM64'
         default: 'ubuntu-24.04-arm'
 
       runTests:
