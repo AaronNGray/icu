@@ -78,7 +78,9 @@ jobs:
       run: |
         # ls icu4c/source/dist
         ls icu4c/source/dist
-        # ls ${RELEASE_FOLDER}
+        # echo "${RELEASE_FOLDER}"
+        echo "${RELEASE_FOLDER}"
+        # ls ${RELEASE_FOLDER}/icu
         ls ${RELEASE_FOLDER}
         # Get the OS version in VERSION_ID
         # source /etc/os-release
@@ -90,8 +92,8 @@ jobs:
         tar -czf icu4c-${underscore_version}-macos-14.tgz icu
         rm -fr icu
         popd
-        mv icu4c/source/dist/icu4c-76_1-d*    ${RELEASE_FOLDER}
-        mv icu4c/source/dist/icu4c-76_1-src.* ${RELEASE_FOLDER}
+        mv icu4c/source/dist/icu4c-77_1-d*    ${RELEASE_FOLDER}
+        mv icu4c/source/dist/icu4c-77_1-src.* ${RELEASE_FOLDER}
 
     - name: Upload build results
       uses: actions/upload-artifact@v4.3.6
