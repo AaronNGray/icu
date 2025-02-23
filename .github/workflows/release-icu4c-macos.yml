@@ -1,0 +1,109 @@
+name: Release - ICU4C artifacts on macOS/clang/arm64
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'arm64'
+  workflow_dispatch:
+    inputs:
+      runTests:
+        description: 'Run the tests.'
+        type: boolean
+        default: true
+      gitReleaseTag:
+        description: 'Release tag to upload to. Must start with "release-"'
+        type: string
+        default: 'release-77-1'
+
+env:
+  RELEASE_FOLDER: '${{ github.workspace }}/releaseDist'
+
+jobs:
+  build:
+    runs-on: macos-latest  # Updated in BRS
+    environment: release-env
+
+    permissions:
+      contents: write # So that we can upload to release
+
+    steps:
+
+    - name: Set up dependencies for macOS
+      run: |
+        brew update
+        brew upgrade cmake 
+        brew install automake autoconf fontconfig
+        brew install doxygen
+
+    - name: Display versions
+      run: |
+        clang -v
+        cmake --version
+
+    - name: set env variables
+      run: |
+        echo "" >> $GITHUB_ENV
+
+    - name: Checkout and setup
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Config and build ICU4C proper
+      env:
+        C_INCLUDE_PATH: '/opt/homebrew/include'
+        CPLUS_INCLUDE_PATH: '/opt/homebrew/include'
+      run: |
+        pushd icu4c/source
+        ./runConfigureICU macOS
+        make -j8
+        popd
+
+    - name: Run tests
+      if: ${{ inputs.runTests }}
+      run: |
+        pushd icu4c/source
+        make check
+        popd
+
+    - name: Build release ICU4C
+      run: |
+        pushd icu4c/source
+        make dist
+        make DESTDIR=${RELEASE_FOLDER}/icu releaseDist
+        popd
+
+    - name: Collect artifacts in one folder
+      run: |
+        # ls icu4c/source/dist
+        ls icu4c/source/dist
+        # ls ${RELEASE_FOLDER}
+        ls ${RELEASE_FOLDER}
+        # Get the OS version in VERSION_ID
+        # source /etc/os-release
+        # Get the ICU version in artifact_version
+        source icu4j/releases_tools/shared.sh
+        # Convert 76.1 to 76_1
+        underscore_version=$(echo $artifact_version | sed 's/\./_/g')
+        pushd ${RELEASE_FOLDER}
+        tar -czf icu4c-${underscore_version}-macos-14.tgz icu
+        rm -fr icu
+        popd
+        mv icu4c/source/dist/icu4c-76_1-d*    ${RELEASE_FOLDER}
+        mv icu4c/source/dist/icu4c-76_1-src.* ${RELEASE_FOLDER}
+
+    - name: Upload build results
+      uses: actions/upload-artifact@v4.3.6
+      with:
+        name: icu4c-mac-14-binaries
+        path: ${{ env.RELEASE_FOLDER }}
+        retention-days: 3 # TBD if we want to keep them longer
+        overwrite: true
+
+    - name: Upload to release
+      if: ${{ inputs.gitReleaseTag && startsWith(inputs.gitReleaseTag, 'release-') }}
+      run: |
+        gh release uplo1ad ${{ inputs.gitReleaseTag }} ${RELEASE_FOLDER}/* --clobber --repo=${{ github.repository }}
+      env:
+        GH_TOKEN: ${{ github.token }}
